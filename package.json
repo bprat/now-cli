@@ -1,0 +1,17 @@
+{
+  "name": "now-cli",
+  "version": "0.0.1",
+  "description": "Command line utility for syncing scripts from a ServiceNow instance",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bharath Prathipati",
+  "license": "ISC",
+  "bin": {
+    "now": "./index.js"
+  },
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
+}
