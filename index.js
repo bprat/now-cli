@@ -24,6 +24,8 @@ program
 .action(function(file) {
   username = config.get('creds.user');
   password = config.get('creds.passwd');
+  instance = config.get('instance.name');
+  console.log('password: ' + password);
   console.log('file: %s ', file);
   fs.readFile(file, 'utf8', function (err,data) {
     if (err) {
