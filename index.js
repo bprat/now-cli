@@ -5,7 +5,9 @@ var fileData,
     fs = require('fs'),
     instance,
     program = require('commander'),
-    request = require('request');
+    request = require('request'),
+    config = require('config'),
+    username, password;
 
 program
 .version('0.0.1')
@@ -20,6 +22,8 @@ program
 .description('Push file to the SN instance')
 .option('-f', 'hard push')
 .action(function(file) {
+  username = config.get('creds.user');
+  password = config.get('creds.passwd');
   console.log('file: %s ', file);
   fs.readFile(file, 'utf8', function (err,data) {
     if (err) {
