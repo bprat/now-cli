@@ -1,0 +1,15 @@
+{
+  "table": {
+    "script_include": "sys_script_include",
+    "ui_script": "sys_ui_script",
+    "ui_page": "sys_ui_page",
+    "business_rule": "sys_script",
+    "proc": "sys_processor",
+    "ui_action": "sys_ui_action"
+  },
+  "data": {
+    "script_include": [
+      
+    ]
+  }
+}
