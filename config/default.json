@@ -6,10 +6,5 @@
     "business_rule": "sys_script",
     "proc": "sys_processor",
     "ui_action": "sys_ui_action"
-  },
-  "data": {
-    "script_include": [
-      
-    ]
   }
 }
