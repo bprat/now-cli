@@ -62,7 +62,8 @@ program
         typeObject[sys_id] = {
           sys_id: sys_id,
           name: name,
-          sys_updated_on: new Date(sys_updated_on)
+          sys_updated_on: new Date(sys_updated_on + ' GMT'),
+          last_pulled: new Date()
         }
         instanceWorking[table] = typeObject;
         workingFileContent[instance] = instanceWorking;
