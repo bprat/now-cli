@@ -59,18 +59,20 @@ program
         sys_id = parsedBody.result[0].sys_id;
         console.log(sys_id);
         var typeObject = instanceWorking[table];
+        var fileName = name + '.' + extension;
         if(typeof typeObject == 'undefined') {
           typeObject = {};
         }
         typeObject[sys_id] = {
           sys_id: sys_id,
           name: name,
+          file_name: fileName,
           sys_updated_on: new Date(sys_updated_on + ' GMT'),
           last_pulled: new Date()
         }
         instanceWorking[table] = typeObject;
         workingFileContent[instance] = instanceWorking;
-        var completeFilePath = rootSrcDir + type + '/' + name + '.' + extension;
+        var completeFilePath = rootSrcDir + type + '/' + fileName;
 
         fs.open(completeFilePath, 'w+', function(err, fd) {
           if (err) {
