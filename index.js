@@ -6,9 +6,11 @@ var fileData,
     program = require('commander'),
     request = require('request'),
     config = require('config'),
+    extension,
     username = config.get('creds.user'),
     password = config.get('creds.passwd'),
     instance = config.util.getEnv('NODE_APP_INSTANCE'),
+    rootSrcDir = config.get('root_src_dir'),
     table,
     workingFileName = './.now_working',
     workingFile = fs.readFileSync(workingFileName),
@@ -32,7 +34,8 @@ program
   .option('-f', 'force pull')
   .action(function (type, file) {
     console.log('pulling %s of type %s', file, type);
-    table = config.table[type];
+    table = config.types[type].table;
+    extension = config.types[type].extension;
     if(typeof table !== 'undefined') {
       console.log('table for %s is %s', type, table)
     }
@@ -67,10 +70,21 @@ program
         }
         instanceWorking[table] = typeObject;
         workingFileContent[instance] = instanceWorking;
+        var completeFilePath = rootSrcDir + type + '/' + name + '.' + extension;
+
+        fs.open(completeFilePath, 'w+', function(err, fd) {
+          if (err) {
+              throw 'error opening file: ' + err;
+          }
+
+          fs.writeFile(completeFilePath, parsedBody.result[0].script, function (err) {
+            if (err) return console.log(err);
+          });
+        });
+
         fs.writeFile(workingFileName, JSON.stringify(workingFileContent, null, 2), function (err) {
           if (err) return console.log(err);
           console.log(JSON.stringify(workingFileContent));
-          console.log('writing to ' + workingFileName);
         });
       } else {
         console.log('error: ' + response.statusCode);

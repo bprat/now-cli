@@ -1,10 +1,28 @@
 {
-  "table": {
-    "script_include": "sys_script_include",
-    "ui_script": "sys_ui_script",
-    "ui_page": "sys_ui_page",
-    "business_rule": "sys_script",
-    "proc": "sys_processor",
-    "ui_action": "sys_ui_action"
+  "types": {
+    "script_include": {
+      "table": "sys_script_include",
+      "extension": "js"
+    },
+    "ui_script": {
+      "table": "sys_ui_script",
+      "extension": "js"
+    },
+    "ui_page": {
+      "table": "sys_ui_page",
+      "extension": "html"
+    },
+    "business_rule": {
+      "table": "sys_script",
+      "extension": "js"
+    },
+    "proc": {
+      "table": "sys_processor",
+      "extension": "js"
+    },
+    "proc": {
+      "table": "ui_action",
+      "extension": "sys_ui_action"
+    }
   }
 }
