@@ -6,6 +6,7 @@ var fileData,
     program = require('commander'),
     request = require('request'),
     config = require('config'),
+    colors = require('colors'),
     extension,
     username = config.get('creds.user'),
     password = config.get('creds.passwd'),
@@ -57,12 +58,15 @@ program
         sys_updated_on = parsedBody.result[0].sys_updated_on;
         name = parsedBody.result[0].name;
         sys_id = parsedBody.result[0].sys_id;
-        console.log(sys_id);
         var typeObject = instanceWorking[table];
         var fileName = name + '.' + extension;
         var completeFilePath = rootSrcDir + type + '/' + fileName;
         if(typeof typeObject == 'undefined') {
           typeObject = {};
+        }
+        if(typeof typeObject[sys_id] !== 'undefined') {
+          console.log(colors.green(typeObject[sys_id].last_pulled));
+          console.log(colors.green(new Date(sys_updated_on + ' GMT')));
         }
         typeObject[sys_id] = {
           sys_id: sys_id,
@@ -87,7 +91,7 @@ program
 
         fs.writeFile(workingFileName, JSON.stringify(workingFileContent, null, 2), function (err) {
           if (err) return console.log(err);
-          console.log(JSON.stringify(workingFileContent));
+          // console.log(colors.green(JSON.stringify(workingFileContent)));
         });
       } else {
         console.log('error: ' + response.statusCode);

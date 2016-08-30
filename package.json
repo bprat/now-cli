@@ -12,6 +12,7 @@
     "now": "./index.js"
   },
   "dependencies": {
+    "colors": "^1.1.2",
     "commander": "^2.9.0",
     "config": "^1.21.0",
     "fs": "0.0.1-security",
