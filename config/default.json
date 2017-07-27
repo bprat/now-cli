@@ -1,18 +1,18 @@
 {
   "types": {
-    "script_include": {
+    "si": {
       "table": "sys_script_include",
       "extension": "js"
     },
-    "ui_script": {
+    "uis": {
       "table": "sys_ui_script",
       "extension": "js"
     },
-    "ui_page": {
+    "uip": {
       "table": "sys_ui_page",
       "extension": "html"
     },
-    "business_rule": {
+    "br": {
       "table": "sys_script",
       "extension": "js"
     },
@@ -20,9 +20,9 @@
       "table": "sys_processor",
       "extension": "js"
     },
-    "proc": {
+    "uia": {
       "table": "ui_action",
-      "extension": "sys_ui_action"
+      "extension": "js"
     }
   }
 }
