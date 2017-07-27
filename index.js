@@ -6,11 +6,11 @@ var fileData,
     program = require('commander'),
     request = require('request'),
     config = require('config'),
-    colors = require('colors'),
+    chalk = require('chalk'),
     extension,
     username = config.get('creds.user'),
     password = config.get('creds.passwd'),
-    instance = config.util.getEnv('NODE_APP_INSTANCE'),
+    instance = config.get('instance'),
     rootSrcDir = config.get('root_src_dir'),
     table,
     workingFileName = './.now_working',
@@ -22,7 +22,7 @@ var fileData,
     } else {
       workingFileContent = {};
     }
-    console.log('pointing to instance: ' + config.util.getEnv('NODE_APP_INSTANCE'));
+    console.log('pointing to instance: ' + instance);
     var instanceWorking = workingFileContent[instance];
     if(typeof instanceWorking == 'undefined') {
       instanceWorking = {};
@@ -53,7 +53,6 @@ program
     var sys_id, name, last_pulled, sys_updated_on;
     request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        // Print out the response body
         var parsedBody = JSON.parse(body);
         sys_updated_on = parsedBody.result[0].sys_updated_on;
         name = parsedBody.result[0].name;
@@ -69,8 +68,8 @@ program
           typeObject = {};
         }
         if(typeof typeObject[sys_id] !== 'undefined') {
-          console.log(colors.green(typeObject[sys_id].last_pulled));
-          console.log(colors.green(new Date(sys_updated_on + ' GMT')));
+          console.log(chalk.green(typeObject[sys_id].last_pulled));
+          console.log(chalk.green(new Date(sys_updated_on + ' GMT')));
         }
         typeObject[name] = {
           sys_id: sys_id,
@@ -89,13 +88,17 @@ program
           }
 
           fs.writeFile(completeFilePath, parsedBody.result[0].script, function (err) {
-            if (err) return console.log(err);
+            if (err) {
+                return console.log(err);
+            } else {
+                console.log(chalk.bold.green('successfully pulled %s'), name);
+            }
           });
         });
 
         fs.writeFile(workingFileName, JSON.stringify(workingFileContent, null, 2), function (err) {
           if (err) return console.log(err);
-          // console.log(colors.green(JSON.stringify(workingFileContent)));
+          // console.log(chalk.green(JSON.stringify(workingFileContent)));
         });
       } else {
         console.log('error: ' + response.statusCode);
@@ -110,35 +113,38 @@ program
   //.option('-f', 'hard push')
   .action(function(type, file) {
     table = config.types[type].table;
-    var tableObj = instanceWorking[table][file];
+    var fileObj = instanceWorking[table][file];
+    var filePath = fileObj['file'];
     console.log('pushing %s ', file);
-    console.log(tableObj);
-    // fs.readFile(file, 'utf8', function (err,data) {
-    //   if (err) {
-    //     return console.log(err);
-    //   }
-    //   fileData = data;
-    //   // console.log('fileData: %s', fileData);
-    //   var options = {
-    //     url: 'https://' + instance + '.service-now.com/api/now/table/sys_script_include/9d1b62d0db95ea00dd6af93baf9619b4',
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Accept': 'application/json',
-    //       'Authorization': "Basic " + new Buffer(username + ":" + password).toString("base64")
-    //     },
-    //     json: {'script': fileData}
-    //   }
-    //   // Start the request
-    //   request(options, function (error, response, body) {
-    //     if (!error && response.statusCode == 200) {
-    //       // Print out the response body
-    //       //console.log(body)
-    //     } else {
-    //       console.log('error: ' + response.statusCode);
-    //     }
-    //   })
-    // });
+    console.log(fileObj);
+    if(typeof fileObj !== 'undefined') {
+      fs.readFile(filePath, 'utf8', function (err,data) {
+        if (err) {
+          return console.log(err);
+        }
+        fileData = data;
+        // console.log('fileData: %s', fileData);
+        var options = {
+          url: 'https://' + instance + '.service-now.com/api/now/table/' + table + '/' + fileObj['sys_id'],
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': "Basic " + new Buffer(username + ":" + password).toString("base64")
+          },
+          json: {'script': fileData}
+        }
+        // Start the request
+        request(options, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            // Print out the response body
+            //console.log(body)
+          } else {
+            console.log('error: ' + response.statusCode);
+          }
+        })
+      });
+    }
   });
 
 program.parse(process.argv);

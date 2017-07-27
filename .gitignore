@@ -1,1 +1,4 @@
+.DS_Store
 config/default-*.json
+config/development.json
+.now_working
