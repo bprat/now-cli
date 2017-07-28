@@ -29,7 +29,7 @@ var fileData,
     if(typeof instanceWorking == 'undefined') {
       instanceWorking = {};
     }
-
+    const { exec } = require('child_process');
 program
   .version('0.0.1')
   .command('pull <type> <file>')
@@ -85,7 +85,29 @@ program
           if(local_updated_on > last_pulled) {
               console.log(chalk.red.bold('file was updated locally, aborting pull'));
               // open up a diff
-              return;
+              var completeTempFilePath = completeFilePath + '.temp';
+              fs.open(completeTempFilePath, 'w+', function(err, fd) {
+                if (err) {
+                    console.log('error opening file: ' + err);
+                    throw 'error opening file: ' + err;
+                }
+
+                fs.writeFile(completeTempFilePath, parsedBody.result[0].script, function (err) {
+                  if (err) {
+                      return console.log(err);
+                  } else {
+                      console.log(chalk.bold.green('successfully created temp file %s and opening diff'), name+'.temp');
+                  }
+                });
+              });
+              var diffCmd = util.format('p4m.sh %s %s',completeFilePath, completeTempFilePath);
+              exec(diffCmd, (err, stdout, stderr) => {
+                if (err) {
+                  // node couldn't execute the command
+                  return;
+                }
+              });
+              // return;
           }
           if(sys_updated_on < local_updated_on) {
               console.log(chalk.blue('local copy latest'))

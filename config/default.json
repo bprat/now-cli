@@ -2,22 +2,22 @@
   "types": {
     "si": {
       "table": "sys_script_include",
-      "name": "Script Includes",
+      "name": "ScriptIncludes",
       "extension": "js"
     },
     "uis": {
       "table": "sys_ui_script",
-      "name": "UI Scripts",
+      "name": "UIScripts",
       "extension": "js"
     },
     "uip": {
       "table": "sys_ui_page",
-      "name": "UI Pages",
+      "name": "UIPages",
       "extension": "html"
     },
     "br": {
       "table": "sys_script",
-      "name": "Business Rules",
+      "name": "BusinessRules",
       "extension": "js"
     },
     "proc": {
@@ -27,7 +27,7 @@
     },
     "uia": {
       "table": "ui_action",
-      "name": "UI Actions",
+      "name": "UIActions",
       "extension": "js"
     }
   }
