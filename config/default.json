@@ -2,26 +2,32 @@
   "types": {
     "si": {
       "table": "sys_script_include",
+      "name": "Script Includes",
       "extension": "js"
     },
     "uis": {
       "table": "sys_ui_script",
+      "name": "UI Scripts",
       "extension": "js"
     },
     "uip": {
       "table": "sys_ui_page",
+      "name": "UI Pages",
       "extension": "html"
     },
     "br": {
       "table": "sys_script",
+      "name": "Business Rules",
       "extension": "js"
     },
     "proc": {
       "table": "sys_processor",
+      "name": "Processors",
       "extension": "js"
     },
     "uia": {
       "table": "ui_action",
+      "name": "UI Actions",
       "extension": "js"
     }
   }

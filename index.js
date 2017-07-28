@@ -7,6 +7,8 @@ var fileData,
     request = require('request'),
     config = require('config'),
     chalk = require('chalk'),
+    util = require('util'),
+    entityName,
     extension,
     username = config.get('creds.user'),
     password = config.get('creds.passwd'),
@@ -22,7 +24,7 @@ var fileData,
     } else {
       workingFileContent = {};
     }
-    console.log('pointing to instance: ' + instance);
+    console.log(chalk.yellow('pointing to %s'), instance);
     var instanceWorking = workingFileContent[instance];
     if(typeof instanceWorking == 'undefined') {
       instanceWorking = {};
@@ -34,11 +36,12 @@ program
   .description('Pull a script from ServiceNow')
   .option('-f', 'force pull')
   .action(function (type, file) {
-    console.log('pulling %s of type %s', file, type);
+    // console.log('pulling %s of type %s', file, type);
     table = config.types[type].table;
     extension = config.types[type].extension;
+    entityName = config.types[type].name;
     if(typeof table !== 'undefined') {
-      console.log('table for %s is %s', type, table)
+    //   console.log('table for %s is %s', type, table)
     }
 
     var options = {
@@ -50,16 +53,20 @@ program
         'Authorization': "Basic " + new Buffer(username + ":" + password).toString("base64")
       }
     }
-    var sys_id, name, last_pulled, sys_updated_on;
+    var sys_id, name, last_pulled, sys_updated_on, local_updated_on;
     request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var parsedBody = JSON.parse(body);
-        sys_updated_on = parsedBody.result[0].sys_updated_on;
+        if(parsedBody.result.length == 0) {
+            console.log(chalk.bold.red('Object not found on the instance'));
+            return;
+        }
+        sys_updated_on = new Date(parsedBody.result[0].sys_updated_on + ' GMT');
         name = parsedBody.result[0].name;
         sys_id = parsedBody.result[0].sys_id;
         var typeObject = instanceWorking[table];
         var fileName = name + '.' + extension;
-        var fileDir = rootSrcDir + type + '/';
+        var fileDir = rootSrcDir + entityName + '/';
         if (!fs.existsSync(fileDir)){
             fs.mkdirSync(fileDir);
         }
@@ -67,9 +74,22 @@ program
         if(typeof typeObject == 'undefined') {
           typeObject = {};
         }
-        if(typeof typeObject[sys_id] !== 'undefined') {
-          console.log(chalk.green(typeObject[sys_id].last_pulled));
-          console.log(chalk.green(new Date(sys_updated_on + ' GMT')));
+        if(typeof typeObject[name] !== 'undefined') {
+          var stats = fs.statSync(completeFilePath);
+          var mtime = new Date(util.inspect(stats.mtime));
+          last_pulled = new Date(typeObject[name].last_pulled);
+          local_updated_on = new Date(mtime);
+          console.log(chalk.yellow('local update time - %s'), local_updated_on);
+          console.log(chalk.yellow('pulled time - %s'), last_pulled);
+          console.log(chalk.yellow('remote update time - %s'), sys_updated_on);
+          if(local_updated_on > last_pulled) {
+              console.log(chalk.red.bold('file was updated locally, aborting pull'));
+              // open up a diff
+              return;
+          }
+          if(sys_updated_on < local_updated_on) {
+              console.log(chalk.blue('local copy latest'))
+          }
         }
         typeObject[name] = {
           sys_id: sys_id,
