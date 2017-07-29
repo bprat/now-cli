@@ -9,7 +9,7 @@
   "author": "Bharath Prathipati",
   "license": "ISC",
   "bin": {
-    "nowcli":  "./index.js"
+    "nowcli": "./index.js"
   },
   "dependencies": {
     "chalk": "^2.0.1",

@@ -10,10 +10,10 @@ var fileData,
     util = require('util'),
     entityName,
     extension,
-    username = config.get('creds.user'),
-    password = config.get('creds.passwd'),
     instance = config.get('instance'),
-    rootSrcDir = config.get('root_src_dir'),
+    username = config.get(instance + '.creds.user'),
+    password = config.get(instance + '.creds.passwd'),
+    rootSrcDir = config.get(instance + '.root_src_dir'),
     table,
     workingFileName = './.now_working',
     workingFile = fs.readFileSync(workingFileName),
@@ -24,7 +24,6 @@ var fileData,
     } else {
       workingFileContent = {};
     }
-    console.log(chalk.yellow('pointing to %s'), instance);
     var instanceWorking = workingFileContent[instance];
     if(typeof instanceWorking == 'undefined') {
       instanceWorking = {};
@@ -36,7 +35,7 @@ program
   .description('Pull a script from ServiceNow')
   .option('-f', 'force pull')
   .action(function (type, file) {
-    // console.log('pulling %s of type %s', file, type);
+    console.log(chalk.yellow('pointing to %s'), instance);
     table = config.types[type].table;
     extension = config.types[type].extension;
     entityName = config.types[type].name;
@@ -154,6 +153,7 @@ program
   .description('Push file to the SN instance')
   //.option('-f', 'hard push')
   .action(function(type, file) {
+      console.log(chalk.yellow('pointing to %s'), instance);
     table = config.types[type].table;
     var fileObj = instanceWorking[table][file];
     var filePath = fileObj['file'];
@@ -188,5 +188,17 @@ program
       });
     }
   });
+
+program
+  .version('0.0.1')
+  .command('instance [name]')
+  .description('Configure instance to point to')
+  .action(function(name) {
+    if(typeof name === 'undefined') {
+        console.log(chalk.green.bold('pointing to %s'), instance);
+    } else {
+        config.set('instance', name)
+    }
+});
 
 program.parse(process.argv);
