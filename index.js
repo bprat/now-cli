@@ -142,7 +142,7 @@ program
           // console.log(chalk.green(JSON.stringify(workingFileContent)));
         });
       } else {
-        console.log('error: ' + response.statusCode);
+        console.log(chalk.bold.red('failed with status code - %s.\n%s'), response.statusCode, JSON.stringify(response));
       }
     });
   });
@@ -157,8 +157,8 @@ program
     table = config.types[type].table;
     var fileObj = instanceWorking[table][file];
     var filePath = fileObj['file'];
-    console.log('pushing %s ', file);
-    console.log(fileObj);
+    console.log(chalk.green('pushing %s'), file);
+    // console.log(fileObj);
     if(typeof fileObj !== 'undefined') {
       fs.readFile(filePath, 'utf8', function (err,data) {
         if (err) {
@@ -182,7 +182,7 @@ program
             // Print out the response body
             //console.log(body)
           } else {
-            console.log('error: ' + response.statusCode);
+            console.log(chalk.bold.red('failed with status code - %s.\n%s'), response.statusCode, JSON.stringify(response));
           }
         })
       });
@@ -199,6 +199,14 @@ program
     } else {
         config.set('instance', name)
     }
+});
+
+program
+  .version('0.0.1')
+  .command('check_config')
+  .description('Check local and remote instance configuration')
+  .action(function() {
+    
 });
 
 program.parse(process.argv);
