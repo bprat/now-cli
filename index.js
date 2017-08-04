@@ -213,7 +213,7 @@ program
   .command('uset [name]')
   .description('Check local and remote instance configuration')
   .action(function() {
-
+      // set/get current update set
 });
 
 program
@@ -221,7 +221,11 @@ program
   .command('check_config')
   .description('Check local and remote instance configuration')
   .action(function() {
-
+      // check config file entries
+      // check instance config
+      // check access to instance
+      // check working file
+      // check access to target dir
 });
 
 program.parse(process.argv);
