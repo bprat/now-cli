@@ -3,32 +3,38 @@
     "si": {
       "table": "sys_script_include",
       "name": "ScriptIncludes",
-      "extension": "js"
+      "extension": "js",
+      "content_column": "script"
     },
     "uis": {
       "table": "sys_ui_script",
       "name": "UIScripts",
-      "extension": "js"
+      "extension": "js",
+      "content_column": "script"
     },
     "uip": {
       "table": "sys_ui_page",
       "name": "UIPages",
-      "extension": "html"
+      "extension": "html",
+      "content_column": "html"
     },
     "br": {
       "table": "sys_script",
       "name": "BusinessRules",
-      "extension": "js"
+      "extension": "js",
+      "content_column": "script"
     },
     "proc": {
       "table": "sys_processor",
       "name": "Processors",
-      "extension": "js"
+      "extension": "js",
+      "content_column": "script"
     },
     "uia": {
       "table": "ui_action",
       "name": "UIActions",
-      "extension": "js"
+      "extension": "js",
+      "content_column": "script"
     }
   }
 }

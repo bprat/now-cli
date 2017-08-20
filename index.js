@@ -10,6 +10,7 @@ var fileData,
     util = require('util'),
     entityName,
     extension,
+    contentColumn,
     instance = config.get('instance'),
     username = config.get(instance + '.creds.user'),
     password = config.get(instance + '.creds.passwd'),
@@ -38,6 +39,7 @@ program
     console.log(chalk.yellow('pointing to %s'), instance);
     table = config.types[type].table;
     extension = config.types[type].extension;
+    contentColumn = config.types[type].content_column;
     entityName = config.types[type].name;
     if(typeof table !== 'undefined') {
     //   console.log('table for %s is %s', type, table)
@@ -51,7 +53,7 @@ program
     for(var fileIndex = 0, fileCount = files.length; fileIndex < fileCount; fileIndex++) {
         var file = files[fileIndex];
         var options = {
-            url: 'https://' + instance + '.service-now.com/api/now/table/' + table + '?sysparm_fields=sys_id,script,name,sys_updated_on&sysparm_query=name=' + file,
+            url: 'https://' + instance + '.service-now.com/api/now/table/' + table + '?sysparm_fields=sys_id,' + contentColumn + ',name,sys_updated_on&sysparm_query=name=' + file,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -98,7 +100,7 @@ program
                                 throw 'error opening file: ' + err;
                             }
 
-                            fs.writeFile(completeTempFilePath, parsedBody.result[0].script, function (err) {
+                            fs.writeFile(completeTempFilePath, parsedBody.result[0]['contentColumn'], function (err) {
                                 if (err) {
                                     return console.log(err);
                                 } else {
@@ -135,7 +137,7 @@ program
                         throw 'error opening file: ' + err;
                     }
 
-                    fs.writeFile(completeFilePath, parsedBody.result[0].script, function (err) {
+                    fs.writeFile(completeFilePath, parsedBody.result[0][contentColumn], function (err) {
                         if (err) {
                             return console.log(err);
                         } else {
@@ -164,6 +166,7 @@ program
     table = config.types[type].table;
     var fileObj = instanceWorking[table][file];
     var filePath = fileObj['file'];
+    contentColumn = config.types[type].content_column;
     console.log(chalk.green('pushing %s'), file);
     // console.log(fileObj);
     if(typeof fileObj !== 'undefined') {
@@ -181,8 +184,10 @@ program
             'Accept': 'application/json',
             'Authorization': "Basic " + new Buffer(username + ":" + password).toString("base64")
           },
-          json: {'script': fileData}
+          json: {}
         }
+        options.json[contentColumn] = fileData;
+        // console.log('options: %s', JSON.stringify(options));
         // Start the request
         request(options, function (error, response, body) {
           if (!error && response.statusCode == 200) {
@@ -204,7 +209,20 @@ program
     if(typeof name === 'undefined') {
         console.log(chalk.green.bold('pointing to %s'), instance);
     } else {
-        config.set('instance', name)
+        var configFileName = './config/development.json';
+        var configFile = fs.readFileSync(configFileName);
+        var configFileContent = JSON.parse(configFile);
+        if(!configFileContent[name] || typeof configFileContent[name] === 'undefined') {
+            console.log(chalk.red.bold('missing instance configuration for %s, aborting'), name);
+        } else {
+            configFileContent['instance'] = name;
+            fs.writeFile(configFileName, JSON.stringify(configFileContent, null, 2), function (err) {
+                if (err) return console.log(err);
+                else {
+                    console.log(chalk.green.bold('now pointing to %s'), name);
+                }
+            });
+        }
     }
 });
 
@@ -226,6 +244,14 @@ program
       // check access to instance
       // check working file
       // check access to target dir
+});
+
+program
+  .version('0.0.1')
+  .command('status')
+  .description('List out modified files that haven\'t been pushed')
+  .action(function() {
+      
 });
 
 program.parse(process.argv);
