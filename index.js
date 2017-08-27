@@ -30,12 +30,15 @@ var fileData,
       instanceWorking = {};
     }
     const { exec } = require('child_process');
+require('events').EventEmitter.defaultMaxListeners = 0;
+
 program
   .version('0.0.1')
   .command('pull <type> <files>')
   .description('Pull a script from ServiceNow')
-  .option('-f', 'force pull')
-  .action(function (type, files) {
+  .option('-f, --force_pull', 'force pull')
+  .action(function (type, files, options) {
+    var forcePull = options.force_pull;
     console.log(chalk.yellow('pointing to %s'), instance);
     table = config.types[type].table;
     extension = config.types[type].extension;
@@ -82,7 +85,7 @@ program
                 if(typeof typeObject == 'undefined') {
                     typeObject = {};
                 }
-                if(typeof typeObject[name] !== 'undefined') {
+                if(forcePull !== true && typeof typeObject[name] !== 'undefined') {
                     var stats = fs.statSync(completeFilePath);
                     var mtime = new Date(util.inspect(stats.mtime));
                     last_pulled = new Date(typeObject[name].last_pulled);
@@ -251,7 +254,6 @@ program
   .command('status')
   .description('List out modified files that haven\'t been pushed')
   .action(function() {
-      
-});
 
+});
 program.parse(process.argv);
