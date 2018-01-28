@@ -8,6 +8,7 @@ var fileData,
     config = require('config'),
     chalk = require('chalk'),
     util = require('util'),
+    path = require('path'),
     entityName,
     extension,
     contentColumn,
@@ -78,9 +79,18 @@ program
                 var typeObject = instanceWorking[table];
                 var fileName = name + '.' + extension;
                 var fileDir = rootSrcDir + entityName + '/';
-                if (!fs.existsSync(fileDir)){
-                    fs.mkdirSync(fileDir);
-                }
+                var sep = path.sep;
+                var initDir = path.isAbsolute(fileDir) ? sep : '';
+                fileDir.split(sep).reduce((parentDir, childDir) => {
+                    const curDir = path.resolve(parentDir, childDir);
+                    if (!fs.existsSync(curDir)) {
+                        fs.mkdirSync(curDir);
+                    }
+                  return curDir;
+                }, initDir);
+                // if (!fs.existsSync(fileDir)){
+                //     fs.mkdirSync(fileDir);
+                // }
                 var completeFilePath = fileDir + fileName;
                 if(typeof typeObject == 'undefined') {
                     typeObject = {};
