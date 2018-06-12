@@ -2,3 +2,4 @@
 config/default-*.json
 config/development.json
 .now_working
+node_modules
