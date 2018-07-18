@@ -16,6 +16,7 @@ var fileData,
     username = config.get(instance + '.creds.user'),
     password = config.get(instance + '.creds.passwd'),
     rootSrcDir = config.get(instance + '.root_src_dir'),
+    subDir,
     table,
     workingFileName = './.now_working',
     workingFile = fs.readFileSync(workingFileName),
@@ -44,6 +45,7 @@ program
     table = config.types[type].table;
     extension = config.types[type].extension;
     contentColumn = config.types[type].content_column;
+    subDir = config.types[type].sub_dir;
     entityName = config.types[type].name;
     if(typeof table !== 'undefined') {
     //   console.log('table for %s is %s', type, table)
@@ -57,7 +59,7 @@ program
     for(var fileIndex = 0, fileCount = files.length; fileIndex < fileCount; fileIndex++) {
         var file = files[fileIndex];
         var options = {
-            url: 'https://' + instance + '.service-now.com/api/now/table/' + table + '?sysparm_fields=sys_id,' + contentColumn + ',name,sys_updated_on&sysparm_query=name=' + file,
+            url: 'https://' + instance + '.service-now.com/api/now/table/' + table + '?sysparm_fields=sys_id,' + contentColumn + ',name,sys_updated_on,client,client_callable,table&sysparm_query=name=' + file,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -65,20 +67,38 @@ program
                 'Authorization': "Basic " + new Buffer(username + ":" + password).toString("base64")
             }
         }
-        var sys_id, name, last_pulled, sys_updated_on, local_updated_on;
+        var sys_id, name, last_pulled, sys_updated_on, local_updated_on, is_client_only, table_name;
         request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 var parsedBody = JSON.parse(body);
+                // console.log('body: ' + body);
                 if(parsedBody.result.length == 0) {
-                    console.log(chalk.bold.red('Object not found on the instance'));
+                    console.log(chalk.bold.red('Object not found on %s'), instance);
                     return;
                 }
                 sys_updated_on = new Date(parsedBody.result[0].sys_updated_on + ' GMT');
+                is_client_only = parsedBody.result[0].client_callable;
+                table_name = parsedBody.result[0].table;
                 name = parsedBody.result[0].name;
                 sys_id = parsedBody.result[0].sys_id;
                 var typeObject = instanceWorking[table];
                 var fileName = name + '.' + extension;
-                var fileDir = rootSrcDir + entityName + '/';
+                if(subDir) {
+                    if(subDir.indexOf('{client}') > -1) {
+                        if(parsedBody.result[0].client_callable) {
+                            subDir = subDir.replace('{client}', parsedBody.result[0].client_callable);
+                        } else if(parsedBody.result[0].client) {
+                            subDir = subDir.replace('{client}', parsedBody.result[0].client);
+                        }
+                    }
+                    if(subDir.indexOf('{table}') > -1) {
+                        if(parsedBody.result[0].table) {
+                            subDir = subDir.replace('{table}', table_name);
+                        }
+                    }
+                }
+                // console.log(subDir);
+                var fileDir = rootSrcDir + entityName + subDir + '/';
                 var sep = path.sep;
                 var initDir = path.isAbsolute(fileDir) ? sep : '';
                 fileDir.split(sep).reduce((parentDir, childDir) => {
@@ -92,6 +112,7 @@ program
                 //     fs.mkdirSync(fileDir);
                 // }
                 var completeFilePath = fileDir + fileName;
+                console.log('completeFilePath: ' + completeFilePath);
                 if(typeof typeObject == 'undefined') {
                     typeObject = {};
                 }

@@ -2,7 +2,8 @@
   "types": {
     "si": {
       "table": "sys_script_include",
-      "name": "ScriptIncludes",
+      "name": "script_includes",
+      "sub_dir": "/client_{client}",
       "extension": "js",
       "content_column": "script"
     },
@@ -26,13 +27,14 @@
     },
     "proc": {
       "table": "sys_processor",
-      "name": "Processors",
+      "name": "processors",
       "extension": "js",
       "content_column": "script"
     },
     "uia": {
-      "table": "ui_action",
-      "name": "UIActions",
+      "table": "sys_ui_action",
+      "name": "ui_actions",
+      "sub_dir": "/{table}/client_{client}",
       "extension": "js",
       "content_column": "script"
     }
