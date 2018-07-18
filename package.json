@@ -16,6 +16,7 @@
     "commander": "^2.9.0",
     "config": "^1.21.0",
     "fs": "0.0.1-security",
+    "reload": "^2.3.0",
     "request": "^2.74.0"
   }
 }
